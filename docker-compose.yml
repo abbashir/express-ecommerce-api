@@ -29,8 +29,13 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
+    volumes:
+      # 1. Syncs your local code into the container (enables hot-reloading)
+      - ./:/app
+      # 2. Protects the container's Linux node_modules from being overwritten by Windows/Mac
+      - /app/node_modules
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 5000
       DATABASE_URL: postgresql://postgres:postgres@db:5432/express_ecommerce?schema=public
     depends_on:

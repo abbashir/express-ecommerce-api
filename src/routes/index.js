@@ -4,7 +4,7 @@ import productRoutes from './productRoutes.js';
 
 const router = express.Router();
 
-router.get('/health', (req, res) => res.json({ success: true }));
+router.get('/health', (req, res) => res.json({ success: true, health: "Healthy APIs" }));
 
 // Like Route::prefix('users')->group(...)
 router.use('/users', userRoutes);

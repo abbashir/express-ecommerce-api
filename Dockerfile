@@ -29,4 +29,4 @@ ENV NODE_ENV=production
 ENV PORT=5000
 
 # Run database push/migrations before starting server
-CMD ["sh", "-c", "npx prisma db push && npm start"]
+CMD ["sh", "-c", "npx prisma db push && npm run dev"]
