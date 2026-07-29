@@ -21,7 +21,7 @@ prisma dev [options]
 |--------|-------------|---------|
 | `--name` / `-n` | Name for the database instance | `default` |
 | `--port` / `-p` | HTTP server port | `51213` |
-| `--db-port` / `-P` | Database server port | `51214` |
+| `--db-port` / `-P` | Database server port | `5432` |
 | `--shadow-db-port` | Shadow database port (for migrations) | `51215` |
 | `--detach` / `-d` | Run in background | `false` |
 | `--debug` | Enable debug logging | `false` |

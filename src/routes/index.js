@@ -1,10 +1,13 @@
 import express from 'express';
+import userRoutes from './userRoutes.js';
+import productRoutes from './productRoutes.js';
 
 const router = express.Router();
 
-// Like Route::get('/health', ...) in Laravel
-router.get('/health', (req, res) => {
-    res.status(200).json({ success: true, message: 'API is healthy' });
-});
+router.get('/health', (req, res) => res.json({ success: true }));
+
+// Like Route::prefix('users')->group(...)
+router.use('/users', userRoutes);
+router.use('/products', productRoutes);
 
 export default router;
