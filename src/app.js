@@ -1,15 +1,14 @@
 import express from 'express';
 import apiRoutes from './routes/index.js';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from './config/swagger.js';
-
+import swaggerFile from './config/swagger-output.json' with { type: 'json' };
 const app = express();
 
 // Built-in middleware to parse incoming JSON payloads (like request()->all() in Laravel)
 app.use(express.json());
 
 // Serve the Swagger UI at the /api-docs endpoint
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // Prefix all routes with /api/v1 (like Laravel's RouteServiceProvider)
 app.use('/api/v1', apiRoutes);

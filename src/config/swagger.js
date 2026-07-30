@@ -1,22 +1,20 @@
-import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerAutogen from 'swagger-autogen';
 
-const options = {
-  definition: {
-    openapi: '3.0.0', // Standard OpenAPI version
-    info: {
-      title: 'E-commerce API',
-      version: '1.0.0',
-      description: 'API documentation for the E-commerce application',
-    },
-    servers: [
-      {
-        url: 'http://localhost:5000/api/v1',
-        description: 'Development server',
-      },
-    ],
+const doc = {
+  info: {
+    title: 'E-commerce API',
+    version: '1.0.0',
+    description: 'API documentation for the E-commerce application',
   },
-  // Tells swagger-jsdoc to look for API comments in your route files
-  apis: ['./src/routes/*.js'], 
+  host: 'localhost:5000',
+  schemes: ['http'],
+  tags: [
+    { name: 'Products', description: 'Endpoints for managing the product catalog' },
+    { name: 'Users', description: 'Endpoints for user registration and management' },
+  ],
 };
 
-export const swaggerSpec = swaggerJsdoc(options);
+const outputFile = './swagger-output.json'; // still lands in config/ — see note below
+const endpointsFiles = ['../app.js']; // go up one level, then into src
+
+swaggerAutogen()(outputFile, endpointsFiles, doc);
