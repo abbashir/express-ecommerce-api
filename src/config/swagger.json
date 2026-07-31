@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.0",
+    "info": {
+    "title": "E-commerce API",
+      "version": "1.0.0",
+        "description": "API documentation for the E-commerce application"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Development server"
+    }
+  ],
+    "tags": [
+      {
+        "name": "Products",
+        "description": "Endpoints for managing the product catalog"
+      }
+    ],
+      "components": {
+    "schemas": {
+      "ProductInput": {
+        "type": "object",
+          "required": ["name", "price", "sku"],
+            "properties": {
+          "name": { "type": "string", "example": "Gaming Mouse" },
+          "description": { "type": "string", "example": "Wireless RGB mouse" },
+          "price": { "type": "number", "example": 49.99 },
+          "stock": { "type": "integer", "example": 100 },
+          "sku": { "type": "string", "example": "MOUSE-123" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/products": {
+      "post": {
+        "summary": "Create a new product",
+          "tags": ["Products"],
+            "requestBody": {
+          "required": true,
+            "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully"
+          }
+        }
+      }
+    }
+  }
+}
