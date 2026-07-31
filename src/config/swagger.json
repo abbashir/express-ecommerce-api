@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
-    "info": {
+  "info": {
     "title": "E-commerce API",
-      "version": "1.0.0",
-        "description": "API documentation for the E-commerce application"
+    "version": "1.0.0",
+    "description": "RESTful API documentation for the E-commerce application"
   },
   "servers": [
     {
@@ -11,35 +11,118 @@
       "description": "Development server"
     }
   ],
-    "tags": [
-      {
-        "name": "Products",
-        "description": "Endpoints for managing the product catalog"
-      }
-    ],
-      "components": {
-    "schemas": {
-      "ProductInput": {
-        "type": "object",
-          "required": ["name", "price", "sku"],
-            "properties": {
-          "name": { "type": "string", "example": "Gaming Mouse" },
-          "description": { "type": "string", "example": "Wireless RGB mouse" },
-          "price": { "type": "number", "example": 49.99 },
-          "stock": { "type": "integer", "example": 100 },
-          "sku": { "type": "string", "example": "MOUSE-123" }
-        }
-      }
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Endpoints for managing the product catalog"
     }
-  },
+  ],
   "paths": {
     "/products": {
+      "get": {
+        "summary": "Get paginated list of products",
+        "description": "Retrieve products with optional pagination, text search, and field sorting.",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page (default: 10, max: 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search keyword matching product name or description",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by (id, name, price, stock, createdAt, updatedAt)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "name",
+                "price",
+                "stock",
+                "createdAt",
+                "updatedAt"
+              ],
+              "default": "createdAt"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort direction (asc or desc)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved products list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProductsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "Create a new product",
-          "tags": ["Products"],
-            "requestBody": {
+        "description": "Add a new product to the catalog.",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
           "required": true,
-            "content": {
+          "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProductInput"
@@ -49,7 +132,412 @@
         },
         "responses": {
           "201": {
-            "description": "Product created successfully"
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Product created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error (missing or invalid fields)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (SKU already exists)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "summary": "Get product by ID",
+        "description": "Retrieve detailed information about a single product by its unique integer ID.",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique numeric identifier of the product",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update product by ID",
+        "description": "Update specific fields of an existing product.",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique numeric identifier of the product",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Product updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or invalid ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (Duplicate SKU)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete product by ID",
+        "description": "Remove a product from the database.",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique numeric identifier of the product",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Product deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Gaming Mouse"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Wireless RGB mouse with ergonomic design"
+          },
+          "price": {
+            "type": "string",
+            "example": "49.99"
+          },
+          "stock": {
+            "type": "integer",
+            "example": 100
+          },
+          "sku": {
+            "type": "string",
+            "example": "MOUSE-123"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-31T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-31T12:00:00.000Z"
+          }
+        }
+      },
+      "ProductInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "price",
+          "sku"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gaming Mouse"
+          },
+          "description": {
+            "type": "string",
+            "example": "Wireless RGB mouse with ergonomic design"
+          },
+          "price": {
+            "type": "number",
+            "example": 49.99
+          },
+          "stock": {
+            "type": "integer",
+            "default": 0,
+            "example": 100
+          },
+          "sku": {
+            "type": "string",
+            "example": "MOUSE-123"
+          }
+        }
+      },
+      "ProductUpdateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gaming Mouse Pro"
+          },
+          "description": {
+            "type": "string",
+            "example": "Updated description for Pro version"
+          },
+          "price": {
+            "type": "number",
+            "example": 59.99
+          },
+          "stock": {
+            "type": "integer",
+            "example": 150
+          },
+          "sku": {
+            "type": "string",
+            "example": "MOUSE-123-PRO"
+          }
+        }
+      },
+      "PaginatedProductsResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "example": 25
+              },
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 10
+              },
+              "totalPages": {
+                "type": "integer",
+                "example": 3
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Field \"name\" is required and must be a non-empty string."
+            ]
           }
         }
       }
