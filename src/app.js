@@ -13,6 +13,10 @@ const swaggerDocument = JSON.parse(
     fs.readFileSync('src/config/swagger.json', 'utf-8')
 );
 
+// Inject client_key from .env to display at top of Swagger UI
+const clientKey = process.env.CLIENT_KEY || 'your_secret_client_key';
+swaggerDocument.info.description = `RESTful API documentation for the E-commerce application.\n\n**client_key:** \`${clientKey}\``;
+
 // 2. Serve Swagger UI using the parsed JSON document
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
