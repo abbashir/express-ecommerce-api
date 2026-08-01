@@ -1,5 +1,5 @@
 import express from 'express';
-import { signup, login } from '../controllers/authController.js';
+import { signup, login, logout } from '../controllers/authController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -7,6 +7,9 @@ const router = express.Router();
 // Public routes
 router.post('/signup', signup);
 router.post('/login', login);
+
+// Protected routes
+router.post('/logout', protect, logout);
 
 // Example of a protected route using our middleware
 router.get('/me', protect, (req, res) => {
