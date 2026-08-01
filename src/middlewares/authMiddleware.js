@@ -20,7 +20,7 @@ export const protect = async (req, res, next) => {
         // Find the user in the database (excluding the password)
         const user = await prisma.user.findUnique({
             where: { id: decoded.id },
-            select: { id: true, name: true, email: true } // Add 'role' here later if you have admins
+            select: { id: true, name: true, email: true, createdAt: true, updatedAt: true } // Add 'role' here later if you have admins
         });
 
         if (!user) {
