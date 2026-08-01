@@ -21,6 +21,12 @@
       "description": "Endpoints for managing the product catalog"
     }
   ],
+  "security": [
+    {
+      "client_key": [],
+      "api_token": []
+    }
+  ],
   "paths": {
     "/auth/signup": {
       "post": {
@@ -731,10 +737,15 @@
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+      "client_key": {
+        "type": "apiKey",
+        "name": "x-client-key",
+        "in": "header"
+      },
+      "api_token": {
+        "type": "apiKey",
+        "name": "x-api-token",
+        "in": "header"
       }
     }
   }

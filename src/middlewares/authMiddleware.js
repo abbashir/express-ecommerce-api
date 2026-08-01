@@ -2,36 +2,56 @@ import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
 
 export const protect = async (req, res, next) => {
-    let token;
+    // 1. Validate x-client-key header against env CLIENT_KEY
+    const clientKey = req.headers['x-client-key'];
+    const validClientKey = process.env.CLIENT_KEY;
 
-    // Check if the Authorization header exists and starts with 'Bearer'
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1]; // Extract just the token
+    if (validClientKey && clientKey !== validClientKey) {
+        return res.status(401).json({
+            success: false,
+            message: 'Not authorized: Invalid or missing x-client-key header'
+        });
+    }
+
+    // 2. Extract x-api-token (or Authorization Bearer header as fallback)
+    let token = req.headers['x-api-token'];
+
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
     }
 
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
+        return res.status(401).json({
+            success: false,
+            message: 'Not authorized: Invalid or missing x-api-token header'
+        });
     }
 
     try {
-        // Verify the token using your secret
+        // Verify the JWT token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Find the user in the database (excluding the password)
+        // Find the user in the database
         const user = await prisma.user.findUnique({
             where: { id: decoded.id },
-            select: { id: true, name: true, email: true, createdAt: true, updatedAt: true } // Add 'role' here later if you have admins
+            select: { id: true, name: true, email: true, createdAt: true, updatedAt: true }
         });
 
         if (!user) {
-            return res.status(401).json({ success: false, message: 'User belonging to this token no longer exists' });
+            return res.status(401).json({
+                success: false,
+                message: 'User belonging to this token no longer exists'
+            });
         }
 
-        // Attach the user to the request object (just like Auth::user() in Laravel)
+        // Attach user to request object
         req.user = user;
-        
-        next(); // Proceed to the route handler
+
+        next();
     } catch (error) {
-        return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+        return res.status(401).json({
+            success: false,
+            message: 'Not authorized: Token validation failed'
+        });
     }
 };
